@@ -4,9 +4,9 @@
 import {
   GameState, GameCard, ClientCard, ClientGameState, Team,
   Round, RoomSettings, Difficulty, GuessResult, RoundSummary,
-  GameStats, DEFAULT_SETTINGS, TEAM_COLORS, DIFFICULTY_CONFIG,
+  GameStats, DEFAULT_SETTINGS, TEAM_COLORS, DIFFICULTY_CONFIG, WordEntry,
 } from './types';
-import { generateBoardWords, WordEntry } from './words';
+import { generateBoardWords } from './words';
 import { matchGuess } from './fuzzy';
 
 function randomInRange(min: number, max: number): number {
