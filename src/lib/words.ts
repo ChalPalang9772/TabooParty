@@ -185,7 +185,7 @@ export function getWordsByDifficulty(difficulty: Difficulty): WordEntry[] {
 
 // Get all categories
 export function getAllCategories(): string[] {
-  return [...new Set(WORD_DATABASE.map(w => w.category))];
+  return Array.from(new Set(WORD_DATABASE.map(w => w.category)));
 }
 
 // Get random words for a board
