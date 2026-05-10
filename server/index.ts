@@ -318,6 +318,9 @@ io.on('connection', (socket: Socket) => {
     const cardId = activeCards.get(roomCode);
     if (!cardId) return;
 
+    const card = state.board.find(c => c.id === cardId);
+    if (!card) return;
+
     // Find player
     const player = state.teams.flatMap(t => t.players).find(p => p.id === socket.id);
     if (!player) return;
