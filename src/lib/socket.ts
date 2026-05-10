@@ -94,7 +94,7 @@ export function useSocket() {
           x: 50 + Math.random() * 200,
           y: 200 + Math.random() * 100,
           points: result.points,
-          type: result.result === 'exact' ? 'correct' : 'close',
+          type: result.result === 'correct' ? 'correct' : 'close',
           timestamp: Date.now(),
         });
       } else if (result.playerId === s.id) {

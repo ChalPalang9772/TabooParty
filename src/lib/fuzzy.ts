@@ -14,7 +14,7 @@ export function levenshtein(a: string, b: string): number {
   return dp[la][lb];
 }
 
-export type MatchResult = 'exact' | 'close' | 'wrong';
+export type MatchResult = 'correct' | 'close' | 'wrong';
 
 export function matchGuess(
   guess: string,
@@ -23,7 +23,7 @@ export function matchGuess(
   const g = guess.trim().toLowerCase();
   const t = target.trim().toLowerCase();
 
-  if (g === t) return { result: 'exact', pointMultiplier: 1.0 };
+  if (g === t) return { result: 'correct', pointMultiplier: 1.0 };
 
   const len = t.length;
   let threshold: number;

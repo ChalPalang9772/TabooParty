@@ -185,7 +185,7 @@ export function processGuess(
   const points = Math.ceil(card.escalatedPoints * pointMultiplier);
   const team = state.teams[teamIndex];
 
-  if (result === 'exact' || result === 'close') {
+  if (result === 'correct' || result === 'close') {
     card.solved = true;
     card.solvedBy = teamIndex;
     card.solvedAt = Date.now();
