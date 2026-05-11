@@ -72,40 +72,24 @@ export function GameCard({
           : 'cursor-default'
       }`}
     >
-      {/* Difficulty label */}
-      <span
-        className="text-[10px] font-bold uppercase tracking-widest mb-1"
-        style={{ color: config.color }}
-      >
-        {config.label}
-      </span>
-
-      {/* Stars */}
-      <span
-        className="text-[10px] tracking-wider mb-2 opacity-60"
-        style={{ color: config.color }}
-      >
-        {stars}
-      </span>
-
-      {/* WORD & POINTS (Now visible to everyone) */}
-      <div className="flex flex-col items-center mb-1">
-        <h3 className="font-display text-sm md:text-base font-black text-white text-center leading-tight uppercase">
+      {/* WORD & POINTS (Simplified) */}
+      <div className="flex flex-col items-center justify-center flex-1">
+        <h3 className="font-display text-sm md:text-lg font-black text-white text-center leading-tight uppercase mb-1">
           {card.word}
         </h3>
-        <p className="text-lg md:text-xl font-black" style={{ color: config.color }}>
+        <p className="text-xl md:text-2xl font-black" style={{ color: config.color }}>
           {card.points}
         </p>
       </div>
 
-      {/* Escalation bars (advanced mode) */}
+      {/* Minimal Escalation indicator */}
       {escalationBars > 0 && (
-        <div className="flex gap-0.5 mt-1">
+        <div className="flex gap-0.5 mt-1 opacity-50">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className={`w-1.5 h-3 rounded-sm transition-all ${
-                i < escalationBars ? 'bg-neon-orange' : 'bg-surface-600'
+              className={`w-1 h-2 rounded-full ${
+                i < escalationBars ? 'bg-white' : 'bg-white/10'
               }`}
             />
           ))}

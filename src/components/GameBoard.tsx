@@ -91,23 +91,23 @@ export function GameBoard() {
           </div>
 
           {/* Timer */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center flex-1">
             <span
-              className={`font-mono text-4xl font-black ${timerColor} ${
+              className={`font-mono text-3xl md:text-4xl font-black ${timerColor} ${
                 isUrgent ? 'timer-urgent' : ''
               }`}
             >
               {timer}
             </span>
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+            <span className="text-[9px] md:text-[10px] text-gray-500 uppercase tracking-wider">
               Round {gameState.roundNumber}/{gameState.totalRounds}
             </span>
           </div>
 
           {/* Round info */}
-          <div className="text-right">
-            <p className="text-xs text-gray-500">
-              {isDescriber ? 'YOU ARE DESCRIBING' : isMyTeamActive ? 'YOUR TEAM — GUESS!' : 'SPECTATING'}
+          <div className="text-right flex-1">
+            <p className="text-[10px] md:text-xs text-gray-500 uppercase">
+              {isDescriber ? 'DESCRIBING' : isMyTeamActive ? 'GUESS!' : 'SPECTATING'}
             </p>
             {streakCount >= 2 && (
               <motion.p
@@ -180,8 +180,8 @@ export function GameBoard() {
         )}
 
         {/* ═══ CARD GRID ═══ */}
-        <div className="flex-1 relative">
-          <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="flex-1 relative mb-20 md:mb-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
             {gameState.board.map((card) => (
               <GameCard
                 key={card.id}

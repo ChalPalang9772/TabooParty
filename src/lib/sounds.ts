@@ -22,8 +22,7 @@ class SoundManager {
   }
 
   play(name: string) {
-    if (!this.enabled || !this.sounds[name]) return;
-    this.sounds[name].play();
+    // Sound disabled by user request
   }
 
   stop(name: string) {

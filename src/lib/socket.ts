@@ -89,14 +89,18 @@ export function useSocket() {
       store.addGuessResult(result);
       if (result.result !== 'wrong' && result.points > 0) {
         sounds?.play('correct');
+        const popupId = Math.random().toString(36).substring(2, 9);
         store.addScorePopup({
-          id: Math.random().toString(36).slice(2),
+          id: popupId,
           x: 50 + Math.random() * 200,
           y: 200 + Math.random() * 100,
           points: result.points,
           type: result.result === 'correct' ? 'correct' : 'close',
           timestamp: Date.now(),
         });
+        
+        // Auto-remove popup after 2 seconds
+        setTimeout(() => store.removeScorePopup(popupId), 2000);
       } else if (result.playerId === s.id) {
         sounds?.play('wrong');
       }

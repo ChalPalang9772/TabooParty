@@ -355,7 +355,7 @@ io.on('connection', (socket: Socket) => {
     }
   });
 
-  // ── NEXT ROUND (host triggers) ──
+  // ── ROUND READY (After summary) ──
   socket.on('round:ready', () => {
     const roomCode = playerRooms.get(socket.id);
     if (!roomCode) return;
