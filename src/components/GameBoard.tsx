@@ -275,7 +275,7 @@ export function GameBoard() {
                     {g.result === 'correct'
                       ? '✓'
                       : g.result === 'close'
-                      ? '≈'
+                      ? '⚠️ MISSPELLED'
                       : '✗'}
                   </span>
                 ))}

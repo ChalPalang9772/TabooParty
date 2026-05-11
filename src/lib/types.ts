@@ -31,13 +31,14 @@ export interface GameCard {
 // What the client sees (no hidden data)
 export interface ClientCard {
   id: string;
+  word: string;      // Everyone sees the word now
+  points: number;    // Everyone sees the points now
   difficulty: Difficulty;
   solved: boolean;
   solvedBy: number | null;
   isBonus: boolean;
   position: number;
-  revealedPoints: number | null; // only after solved
-  escalationLevel: number;       // visual indicator, not exact points
+  escalationLevel: number;
 }
 
 export interface Player {

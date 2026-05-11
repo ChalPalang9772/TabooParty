@@ -42,14 +42,12 @@ export function GameCard({
           }}
         />
         <p className="text-gray-500 text-xs line-through mb-1">SOLVED</p>
-        {card.revealedPoints !== null && (
-          <p
-            className="font-display font-black text-xl"
-            style={{ color: config.color }}
-          >
-            +{card.revealedPoints}
-          </p>
-        )}
+        <p
+          className="font-display font-black text-xl"
+          style={{ color: config.color }}
+        >
+          +{card.points}
+        </p>
         {card.isBonus && (
           <span className="text-[10px] text-neon-yellow mt-1">BONUS</span>
         )}
@@ -84,11 +82,21 @@ export function GameCard({
 
       {/* Stars */}
       <span
-        className="text-sm md:text-base tracking-wider mb-2"
+        className="text-[10px] tracking-wider mb-2 opacity-60"
         style={{ color: config.color }}
       >
         {stars}
       </span>
+
+      {/* WORD & POINTS (Now visible to everyone) */}
+      <div className="flex flex-col items-center mb-1">
+        <h3 className="font-display text-sm md:text-base font-black text-white text-center leading-tight uppercase">
+          {card.word}
+        </h3>
+        <p className="text-lg md:text-xl font-black" style={{ color: config.color }}>
+          {card.points}
+        </p>
+      </div>
 
       {/* Escalation bars (advanced mode) */}
       {escalationBars > 0 && (

@@ -55,12 +55,18 @@ export function createGameState(roomCode: string, settings: Partial<RoomSettings
   };
 }
 
+const DIFFICULTY_ORDER: Record<Difficulty, number> = { easy: 0, moderate: 1, hard: 2, insane: 3 };
+
 export function generateBoard(state: GameState, usedWordIds: string[] = []): GameCard[] {
   const words = generateBoardWords(
     state.settings.categories,
     state.settings.difficultyDistribution,
     usedWordIds
   );
+
+  // Sort words by difficulty order
+  words.sort((a, b) => DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]);
+
   return words.map((entry, i) => {
     const range = DIFFICULTY_CONFIG[entry.difficulty].pointRange;
     const points = randomInRange(range[0], range[1]);
@@ -92,6 +98,10 @@ export function generateBonusCards(
     bonusDist.insane = Math.min(count, 1);
   }
   const words = generateBoardWords(state.settings.categories, bonusDist, usedWordIds);
+  
+  // Sort bonus cards too
+  words.sort((a, b) => DIFFICULTY_ORDER[a.difficulty] - DIFFICULTY_ORDER[b.difficulty]);
+
   const startPos = state.board.length;
   return words.map((entry, i) => {
     const range = DIFFICULTY_CONFIG[entry.difficulty].pointRange;
@@ -117,12 +127,13 @@ export function generateBonusCards(
 export function toClientCard(card: GameCard): ClientCard {
   return {
     id: card.id,
+    word: card.wordEntry.word, // Now exported to all
+    points: card.escalatedPoints, // Now exported to all
     difficulty: card.difficulty,
     solved: card.solved,
     solvedBy: card.solvedBy,
     isBonus: card.isBonus,
     position: card.position,
-    revealedPoints: card.solved ? card.escalatedPoints : null,
     escalationLevel: Math.min(
       Math.floor((card.escalatedPoints - card.points) / 3), 5
     ),
@@ -139,9 +150,25 @@ export function toClientState(state: GameState): ClientGameState {
 export function startRound(state: GameState): Round {
   const teamIndex = state.roundNumber % state.settings.teamCount;
   const team = state.teams[teamIndex];
-  const describerId = team.describerQueue.length > 0
-    ? team.describerQueue[state.roundNumber % team.describerQueue.length]
-    : team.players[0]?.id || '';
+  
+  // FIXED ROTATION: Handle empty teams and cycling correctly
+  let describerId = '';
+  if (team.players.length > 0) {
+    if (team.describerQueue.length > 0) {
+      // Find the first player in the queue who is still in the team
+      const validInQueue = team.describerQueue.find(id => team.players.some(p => p.id === id));
+      if (validInQueue) {
+        describerId = validInQueue;
+        // Move them to the end of the queue for next time
+        team.describerQueue = [...team.describerQueue.filter(id => id !== validInQueue), validInQueue];
+      }
+    }
+    
+    // Fallback if no queue or no valid player in queue
+    if (!describerId) {
+      describerId = team.players[state.roundNumber % team.players.length].id;
+    }
+  }
 
   team.roundScore = 0;
   team.solvedCards = 0;

@@ -269,13 +269,8 @@ io.on('connection', (socket: Socket) => {
     activeCards.set(roomCode, cardId);
     state.currentRound.cardsAttempted += 1;
 
-    // Broadcast to team that a card is selected
-    const teamIndex = state.currentRound.teamIndex;
-    const teamPlayers = state.teams[teamIndex].players;
-    for (const p of teamPlayers) {
-      const s = io.sockets.sockets.get(p.id);
-      if (s) s.emit('card:selected', cardId);
-    }
+    // Broadcast to room that a card is selected (Everyone sees what is being described)
+    io.to(roomCode).emit('card:selected', cardId);
     // Send word + taboo words to describer only
     socket.emit('card:word', {
       word: card.wordEntry.word,
@@ -293,16 +288,9 @@ io.on('connection', (socket: Socket) => {
 
     activeCards.delete(roomCode);
     
-    // Broadcast to team that no card is selected
-    const teamIndex = state.currentRound.teamIndex;
-    const teamPlayers = state.teams[teamIndex].players;
-    for (const p of teamPlayers) {
-      const s = io.sockets.sockets.get(p.id);
-      if (s) {
-        s.emit('card:selected', null);
-        s.emit('card:word', { word: null, tabooWords: [] });
-      }
-    }
+    // Broadcast to room that no card is selected
+    io.to(roomCode).emit('card:selected', null);
+    io.to(roomCode).emit('card:word', { word: null, tabooWords: [] });
   });
 
   // ── GUESS SUBMIT ──

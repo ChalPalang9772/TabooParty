@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabooParty | First Principles Blueprint</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff2d7c;
+            --neon-purple: #a855f7;
+            --bg-dark: #050505;
+            --surface: #111;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ccc;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        h1 {
+            font-weight: 900;
+            font-size: 4rem;
+            margin: 0;
+            background: linear-gradient(to right, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        section {
+            margin-bottom: 60px;
+            padding: 30px;
+            background: var(--surface);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h2 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--neon-cyan);
+            display: block;
+        }
+
+        .code-block {
+            background: #000;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            overflow-x: auto;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            margin: 20px 0;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-item {
+            margin-bottom: 25px;
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 28px;
+            background: var(--neon-purple);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .connection-map {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+        }
+
+        .node {
+            text-align: center;
+            flex: 1;
+        }
+
+        .node-box {
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: bold;
+        }
+
+        .arrow {
+            padding: 0 20px;
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #555;
+            margin-top: 80px;
+        }
+
+        strong { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TABOO PARTY</h1>
+            <div class="status-badge">Technical First Principles Blueprint</div>
+        </header>
+
+        <section>
+            <h2>1. The Fundamental Problem</h2>
+            <p>We are building a <strong>Stateless Web App</strong> that behaves like a <strong>Stateful Console Game</strong>. To achieve this, we split the universe into two parts:</p>
+            <div class="connection-map">
+                <div class="node">
+                    <div class="node-box" style="border: 1px solid var(--neon-cyan)">THE BODY (Vercel)</div>
+                    <p style="font-size: 0.7rem">Frontend / React / Next.js</p>
+                </div>
+                <div class="arrow">--- Socket.io ---&gt;</div>
+                <div class="node">
+                    <div class="node-box" style="border: 1px solid var(--neon-pink)">THE BRAIN (Render)</div>
+                    <p style="font-size: 0.7rem">Backend / Node.js / Server</p>
+                </div>
+            </div>
+            <p>When you guess a word on your phone, it travels to the <strong>Brain</strong>, which updates the <strong>State</strong>, and then screams the result back to every <strong>Body</strong> connected.</p>
+        </section>
+
+        <section>
+            <h2>2. The Invisible Wire (Connection)</h2>
+            <p>The biggest reason for "Reconnecting" errors is that the <strong>Body</strong> doesn't know where the <strong>Brain</strong> is. We fix this with an Environment Variable.</p>
+            <div class="code-block">
+                // src/lib/socket.ts<br>
+                const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
+            </div>
+            <p><strong>First Principle:</strong> At build-time, Vercel replaces `process.env.NEXT_PUBLIC_SOCKET_URL` with your Render URL. If this variable is missing or wrong, it defaults to `localhost`, which fails on mobile devices.</p>
+        </section>
+
+        <section>
+            <h2>3. The Architecture (From Scratch)</h2>
+            <ul class="step-list">
+                <li class="step-item">
+                    <div class="step-number">1</div>
+                    <strong>The Engine (`src/lib/engine.ts`)</strong>: Contains the "Physics" of the game. How words are chosen, how many points you get, and when the timer expires. It is purely mathematical and doesn't know about the internet.
+                </li>
+                <li class="step-item">
+                    <div class="step-number">2</div>
+                    <strong>The Server (`server/index.ts`)</strong>: The gatekeeper. It uses <strong>Socket.io</strong> to manage "Rooms". It listens for events like <code>guess:submit</code> and responds with <code>guess:result</code>.
+                </li>
+                <li class="step-item">
+                    <div class="step-number">3</div>
+                    <strong>The Store (`src/lib/store.ts`)</strong>: The client's memory. We use <strong>Zustand</strong> to keep a local copy of the game state so the UI updates instantly.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. The "Deep Fix" Checklist</h2>
+            <p>If you are still seeing "Reconnecting", follow these steps in order:</p>
+            <ul class="step-list">
+                <li class="step-item">
+                    <strong>Check the Render Type:</strong> Ensure your backend is a <strong>"Web Service"</strong>. If you created a "Static Site" on Render, the backend will never run.
+                </li>
+                <li class="step-item">
+                    <strong>Check CORS (The Security Gate):</strong> In <code>server/index.ts</code>, we set <code>origin: '*'</code>. This tells the server to talk to anyone. Check your Render Logs to see if there are any "CORS" errors.
+                </li>
+                <li class="step-item">
+                    <strong>Check the URL Protocol:</strong> Your Vercel link is <code>https://</code>. Your Render link <strong>must</strong> also be <code>https://</code>. Using <code>http://</code> will cause the browser to block the connection.
+                </li>
+                <li class="step-item">
+                    <strong>The Hard Refresh:</strong> On your phone, clear your browser cache or open the game in an <strong>Incognito/Private</strong> tab to ensure it's not using an old version of the site.
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. The Key Files Reference</h2>
+            <ul>
+                <li><strong>Backend Build:</strong> <code>npm run dev:server</code> (Uses <code>tsx</code> to run TypeScript directly).</li>
+                <li><strong>Frontend Build:</strong> <code>npm run build</code> (Generates optimized HTML/JS).</li>
+                <li><strong>Deployment:</strong> <code>render.yaml</code> (The blueprint for one-click setup).</li>
+            </ul>
+        </section>
+
+        <footer>
+            Built for Competitive Word Warfare &bull; TabooParty MVP v1.0
+        </footer>
+    </div>
+</body>
+</html>
