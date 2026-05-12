@@ -323,7 +323,7 @@ io.on('connection', (socket: Socket) => {
 
     io.to(roomCode).emit('guess:result', result);
 
-    if (result.result !== 'wrong') {
+    if (result.result === 'correct') {
       io.to(roomCode).emit('card:solved', {
         cardId, points: result.points, teamIndex: player.teamIndex, difficulty: card.difficulty,
       });

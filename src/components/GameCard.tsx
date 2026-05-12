@@ -75,7 +75,7 @@ export function GameCard({
       {/* WORD & POINTS (Simplified) */}
       <div className="flex flex-col items-center justify-center flex-1">
         <h3 className="font-display text-sm md:text-lg font-black text-white text-center leading-tight uppercase mb-1">
-          {card.word}
+          {isDescriber ? card.word : config.label}
         </h3>
         <p className="text-xl md:text-2xl font-black" style={{ color: config.color }}>
           {card.points}

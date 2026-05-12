@@ -179,57 +179,12 @@ export function GameBoard() {
           </div>
         )}
 
-        {/* ═══ CARD GRID ═══ */}
-        <div className="flex-1 relative mb-20 md:mb-0">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
-            {gameState.board.map((card) => (
-              <GameCard
-                key={card.id}
-                card={card}
-                isDescriber={isDescriber}
-                isActive={card.id === activeCardId}
-                isMyTeam={isMyTeamActive}
-                onSelect={() => {
-                  if (isDescriber && !card.solved) {
-                    emit('card:select', card.id);
-                  }
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Score popups */}
-          <AnimatePresence>
-            {scorePopups.map((popup) => (
-              <motion.div
-                key={popup.id}
-                initial={{ opacity: 0, scale: 0.5, y: 0 }}
-                animate={{ opacity: 1, scale: 1.2, y: -40 }}
-                exit={{ opacity: 0, y: -80 }}
-                transition={{ duration: 0.8 }}
-                className="absolute pointer-events-none z-50"
-                style={{ left: popup.x, top: popup.y }}
-              >
-                <span
-                  className={`font-display font-black text-3xl ${
-                    popup.type === 'correct'
-                      ? 'text-neon-green text-glow-green'
-                      : 'text-neon-yellow text-glow-orange'
-                  }`}
-                >
-                  +{popup.points}
-                </span>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
         {/* ═══ GUESS INPUT ═══ */}
         {isMyTeamActive && !isDescriber && gameState.status === 'playing' && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="sticky bottom-0 pt-4 pb-2"
+            className="mb-6"
           >
             <div className="glass-card rounded-2xl p-3 border border-white/10">
               <div className="flex gap-2">
@@ -283,6 +238,52 @@ export function GameBoard() {
             </div>
           </motion.div>
         )}
+
+        {/* ═══ CARD GRID ═══ */}
+        <div className="flex-1 relative mb-20 md:mb-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
+            {gameState.board.map((card) => (
+              <GameCard
+                key={card.id}
+                card={card}
+                isDescriber={isDescriber}
+                isActive={card.id === activeCardId}
+                isMyTeam={isMyTeamActive}
+                onSelect={() => {
+                  if (isDescriber && !card.solved) {
+                    emit('card:select', card.id);
+                  }
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Score popups */}
+          <AnimatePresence>
+            {scorePopups.map((popup) => (
+              <motion.div
+                key={popup.id}
+                initial={{ opacity: 0, scale: 0.5, y: 0 }}
+                animate={{ opacity: 1, scale: 1.2, y: -40 }}
+                exit={{ opacity: 0, y: -80 }}
+                transition={{ duration: 0.8 }}
+                className="absolute pointer-events-none z-50"
+                style={{ left: popup.x, top: popup.y }}
+              >
+                <span
+                  className={`font-display font-black text-3xl ${
+                    popup.type === 'correct'
+                      ? 'text-neon-green text-glow-green'
+                      : 'text-neon-yellow text-glow-orange'
+                  }`}
+                >
+                  +{popup.points}
+                </span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
 
         {/* Spectator view */}
         {!isMyTeamActive && gameState.status === 'playing' && (

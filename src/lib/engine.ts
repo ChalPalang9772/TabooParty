@@ -148,15 +148,25 @@ export function toClientState(state: GameState): ClientGameState {
 }
 
 export function startRound(state: GameState): Round {
-  const teamIndex = state.roundNumber % state.settings.teamCount;
-  const team = state.teams[teamIndex];
-  
+  let teamIndex = state.roundNumber % state.settings.teamCount;
+  let team = state.teams[teamIndex];
+
+  let attempts = 0;
+  while (team.players.filter(p => p.isConnected).length === 0 && attempts < state.settings.teamCount) {
+    state.roundNumber++;
+    teamIndex = state.roundNumber % state.settings.teamCount;
+    team = state.teams[teamIndex];
+    attempts++;
+  }
+
   // FIXED ROTATION: Handle empty teams and cycling correctly
   let describerId = '';
-  if (team.players.length > 0) {
+  const connectedPlayers = team.players.filter(p => p.isConnected);
+
+  if (connectedPlayers.length > 0) {
     if (team.describerQueue.length > 0) {
-      // Find the first player in the queue who is still in the team
-      const validInQueue = team.describerQueue.find(id => team.players.some(p => p.id === id));
+      // Find the first player in the queue who is still in the team AND connected
+      const validInQueue = team.describerQueue.find(id => connectedPlayers.some(p => p.id === id));
       if (validInQueue) {
         describerId = validInQueue;
         // Move them to the end of the queue for next time
@@ -166,7 +176,7 @@ export function startRound(state: GameState): Round {
     
     // Fallback if no queue or no valid player in queue
     if (!describerId) {
-      describerId = team.players[state.roundNumber % team.players.length].id;
+      describerId = connectedPlayers[state.roundNumber % connectedPlayers.length].id;
     }
   }
 
@@ -212,7 +222,7 @@ export function processGuess(
   const points = Math.ceil(card.escalatedPoints * pointMultiplier);
   const team = state.teams[teamIndex];
 
-  if (result === 'correct' || result === 'close') {
+  if (result === 'correct') {
     card.solved = true;
     card.solvedBy = teamIndex;
     card.solvedAt = Date.now();
@@ -237,6 +247,9 @@ export function processGuess(
         }
       }
     }
+  } else if (result === 'close') {
+    card.hasCloseGuess = true;
+    team.streak = 0; // Misspell breaks streak
   } else {
     team.streak = 0;
   }
@@ -247,7 +260,7 @@ export function processGuess(
     playerName,
     teamIndex,
     result,
-    points: result !== 'wrong' ? points : 0,
+    points: result === 'correct' ? points : 0, // Points are only for correct here
     cardId: activeCardId,
   };
 }
@@ -280,6 +293,20 @@ export function endRound(state: GameState): RoundSummary | null {
 
   const round = state.currentRound;
   const team = state.teams[round.teamIndex];
+
+  // Award half points for close guesses that weren't fully solved
+  state.board.forEach(c => {
+    if (!c.solved && c.hasCloseGuess) {
+       c.solved = true; 
+       c.solvedBy = team.index;
+       const pts = Math.ceil(c.escalatedPoints * 0.5);
+       team.score += pts;
+       team.roundScore += pts;
+       team.solvedCards += 1;
+       round.cardsSolved += 1;
+       round.scoreEarned += pts;
+    }
+  });
 
   // Find top guesser
   const guessers = team.players.filter(p => p.id !== round.describerId);

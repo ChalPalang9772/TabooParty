@@ -26,6 +26,7 @@ export interface GameCard {
   solvedAt: number | null;   // timestamp
   isBonus: boolean;
   position: number;          // grid position
+  hasCloseGuess?: boolean;
 }
 
 // What the client sees (no hidden data)

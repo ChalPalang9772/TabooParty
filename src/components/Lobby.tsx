@@ -158,10 +158,11 @@ export function Lobby() {
                 label="Total Rounds"
                 value={`${gameState.settings.totalRounds}`}
                 options={[
+                  { label: '1', val: 1 },
+                  { label: '2', val: 2 },
                   { label: '4', val: 4 },
                   { label: '6', val: 6 },
                   { label: '8', val: 8 },
-                  { label: '12', val: 12 },
                 ]}
                 onChange={(v) => emit('settings:update', { totalRounds: v })}
               />
