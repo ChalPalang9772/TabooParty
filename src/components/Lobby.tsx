@@ -157,9 +157,10 @@ export function Lobby() {
                 label="Round Duration"
                 value={`${gameState.settings.roundDuration}s`}
                 options={[
+                  { label: '15s', val: 15 },
+                  { label: '30s', val: 30 },
                   { label: '60s', val: 60 },
                   { label: '90s', val: 90 },
-                  { label: '120s', val: 120 },
                 ]}
                 onChange={(v) => emit('settings:update', { roundDuration: v })}
               />
