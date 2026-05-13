@@ -128,6 +128,15 @@ export function Lobby() {
                   Switch to {team.name}
                 </button>
               )}
+              
+              {isHost && (
+                <button
+                  onClick={() => emit('debug:add_bot', idx)}
+                  className="w-full mt-2 py-2 rounded-lg border border-dashed border-neon-cyan/50 text-xs text-neon-cyan/70 hover:text-neon-cyan hover:border-neon-cyan hover:bg-neon-cyan/10 transition-all"
+                >
+                  + Add Bot (Test)
+                </button>
+              )}
             </motion.div>
           ))}
         </div>
