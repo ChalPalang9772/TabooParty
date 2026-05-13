@@ -49,98 +49,100 @@ function startTimer(roomCode: string) {
   if (existing) clearInterval(existing);
 
   const interval = setInterval(() => {
-    const state = getRoom(roomCode);
-    if (!state || state.status !== 'playing') {
-      clearInterval(interval);
-      timers.delete(roomCode);
-      return;
-    }
-    state.timeRemaining -= 1;
-    io.to(roomCode).emit('timer:tick', state.timeRemaining);
+    try {
+      const state = getRoom(roomCode);
+      if (!state || state.status !== 'playing') {
+        clearInterval(interval);
+        timers.delete(roomCode);
+        return;
+      }
+      state.timeRemaining -= 1;
+      io.to(roomCode).emit('timer:tick', state.timeRemaining);
 
-    if (state.timeRemaining <= 15 && state.timeRemaining > 0) {
-      io.to(roomCode).emit('timer:urgent');
-    }
-
-    // --- Bot Logic ---
-    if (state.currentRound) {
-      const activeCardId = activeCards.get(roomCode);
-      const isBotDescriber = state.currentRound.describerId.startsWith('bot_');
-
-      // 1. Bot Describer logic: Select a random unsolved card if none is selected
-      if (isBotDescriber && !activeCardId) {
-        const unsolvedCards = state.board.filter(c => !c.solved);
-        if (unsolvedCards.length > 0) {
-          // Pick a random card
-          const randomCard = unsolvedCards[Math.floor(Math.random() * unsolvedCards.length)];
-          activeCards.set(roomCode, randomCard.id);
-          state.currentRound.cardsAttempted += 1;
-          io.to(roomCode).emit('card:selected', randomCard.id);
-          // Bots don't need the word sent to them, but we simulate selection
-        }
+      if (state.timeRemaining <= 15 && state.timeRemaining > 0) {
+        io.to(roomCode).emit('timer:urgent');
       }
 
-      // 2. Bot Guesser logic: Occasionally guess the right word
-      if (activeCardId) {
-        const card = state.board.find(c => c.id === activeCardId);
-        if (card && Math.random() < 0.15) { // 15% chance per second to guess correctly
-          // Find a bot on the team that is NOT the describer
-          const currentTeam = state.teams[state.roundNumber % state.settings.teamCount];
-          const guessingBots = currentTeam.players.filter(p => 
-            p.id.startsWith('bot_') && p.id !== state.currentRound!.describerId
-          );
+      // --- Bot Logic ---
+      if (state.currentRound) {
+        const activeCardId = activeCards.get(roomCode);
+        const isBotDescriber = state.currentRound.describerId.startsWith('bot_');
 
-          if (guessingBots.length > 0) {
-            const bot = guessingBots[Math.floor(Math.random() * guessingBots.length)];
-            
-            // Bot sends a correct guess!
-            const result = processGuess(
-              state, card.id, card.wordEntry.word, bot.id, bot.name, bot.teamIndex
+        // 1. Bot Describer logic: Select a random unsolved card if none is selected
+        if (isBotDescriber && !activeCardId) {
+          const unsolvedCards = state.board.filter(c => !c.solved);
+          if (unsolvedCards.length > 0) {
+            // Pick a random card
+            const randomCard = unsolvedCards[Math.floor(Math.random() * unsolvedCards.length)];
+            activeCards.set(roomCode, randomCard.id);
+            state.currentRound.cardsAttempted += 1;
+            io.to(roomCode).emit('card:selected', randomCard.id);
+          }
+        }
+
+        // 2. Bot Guesser logic: Occasionally guess the right word
+        if (activeCardId) {
+          const card = state.board.find(c => c.id === activeCardId);
+          if (card && Math.random() < 0.15) { // 15% chance per second to guess correctly
+            // Find a bot on the active team that is NOT the describer
+            const currentTeam = state.teams[state.currentRound.teamIndex];
+            const guessingBots = currentTeam.players.filter(p => 
+              p.id.startsWith('bot_') && p.id !== state.currentRound!.describerId
             );
-            
-            if (result) {
-              bot.guessCount += 1;
-              if (result.result !== 'wrong') bot.correctGuesses += 1;
-              io.to(roomCode).emit('guess:result', result);
 
-              if (result.result === 'correct') {
-                io.to(roomCode).emit('card:solved', {
-                  cardId: card.id, points: result.points, teamIndex: bot.teamIndex, difficulty: card.difficulty,
-                });
-                io.to(roomCode).emit('score:update', state.teams);
-                io.to(roomCode).emit('board:updated', state.board.map(toClientCard));
+            if (guessingBots.length > 0) {
+              const bot = guessingBots[Math.floor(Math.random() * guessingBots.length)];
+              
+              const result = processGuess(
+                state, card.id, card.wordEntry.word, bot.id, bot.name, bot.teamIndex
+              );
+              
+              if (result) {
+                bot.guessCount += 1;
+                if (result.result !== 'wrong') bot.correctGuesses += 1;
+                io.to(roomCode).emit('guess:result', result);
 
-                io.to(roomCode).emit('streak:update', { count: currentTeam.streak, teamIndex: bot.teamIndex });
-                if (currentTeam.streak >= 3) {
-                  io.to(roomCode).emit('combo:trigger', { level: Math.min(currentTeam.streak - 2, 5), teamIndex: bot.teamIndex });
-                }
-
-                activeCards.delete(roomCode);
-
-                if (checkBonusTrigger(state, bot.teamIndex)) {
-                  const usedIds = state.board.map(c => c.wordEntry.id);
-                  const bonusCards = generateBonusCards(state, state.settings.bonusBatchSize, usedIds);
-                  state.board.push(...bonusCards);
-                  state.currentRound!.bonusCardsGenerated += bonusCards.length;
-                  io.to(roomCode).emit('bonus:generated', bonusCards.map(toClientCard));
+                if (result.result === 'correct') {
+                  io.to(roomCode).emit('card:solved', {
+                    cardId: card.id, points: result.points, teamIndex: bot.teamIndex, difficulty: card.difficulty,
+                  });
+                  io.to(roomCode).emit('score:update', state.teams);
                   io.to(roomCode).emit('board:updated', state.board.map(toClientCard));
-                }
 
-                if (state.board.every(c => c.solved)) {
-                  handleRoundEnd(roomCode);
+                  io.to(roomCode).emit('streak:update', { count: currentTeam.streak, teamIndex: bot.teamIndex });
+                  if (currentTeam.streak >= 3) {
+                    io.to(roomCode).emit('combo:trigger', { level: Math.min(currentTeam.streak - 2, 5), teamIndex: bot.teamIndex });
+                  }
+
+                  activeCards.delete(roomCode);
+
+                  if (checkBonusTrigger(state, bot.teamIndex)) {
+                    const usedIds = state.board.map(c => c.wordEntry.id);
+                    const bonusCards = generateBonusCards(state, state.settings.bonusBatchSize, usedIds);
+                    state.board.push(...bonusCards);
+                    state.currentRound!.bonusCardsGenerated += bonusCards.length;
+                    io.to(roomCode).emit('bonus:generated', bonusCards.map(toClientCard));
+                    io.to(roomCode).emit('board:updated', state.board.map(toClientCard));
+                  }
+
+                  if (state.board.every(c => c.solved)) {
+                    handleRoundEnd(roomCode);
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-    // --- End Bot Logic ---
+      // --- End Bot Logic ---
 
-    if (state.timeRemaining <= 0) {
-      clearInterval(interval);
-      timers.delete(roomCode);
-      handleRoundEnd(roomCode);
+      if (state.timeRemaining <= 0) {
+        clearInterval(interval);
+        timers.delete(roomCode);
+        handleRoundEnd(roomCode);
+      }
+    } catch (err) {
+      console.error('[Timer Error]', err);
     }
   }, 1000);
 
